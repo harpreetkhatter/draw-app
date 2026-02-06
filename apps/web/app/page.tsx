@@ -1,102 +1,123 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
-
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+"use client"
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [roomId, setRoomId] = useState("")
+  const router = useRouter();
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signin");
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/signin");
+  };
+
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      padding: "20px"
+    }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "40px"
+      }}>
+        <h1 style={{ color: "white", margin: 0 }}>Chat Rooms</h1>
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "10px 20px",
+            background: "rgba(255, 255, 255, 0.2)",
+            border: "1px solid white",
+            borderRadius: "8px",
+            color: "white",
+            cursor: "pointer",
+            fontSize: "14px"
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        flex: 1,
+        gap: "20px"
+      }}>
+        <div style={{
+          background: "white",
+          padding: "40px",
+          borderRadius: "16px",
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
+          maxWidth: "500px",
+          width: "100%"
+        }}>
+          <h2 style={{ marginTop: 0, marginBottom: "20px", color: "#333" }}>
+            Join a Room
+          </h2>
+          <input
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            type="text"
+            placeholder="Enter room ID"
+            style={{
+              width: "100%",
+              padding: "15px",
+              fontSize: "16px",
+              border: "2px solid #e0e0e0",
+              borderRadius: "8px",
+              marginBottom: "15px",
+              boxSizing: "border-box",
+              outline: "none",
+              transition: "border-color 0.3s"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#667eea"}
+            onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+          />
+          <button
+            onClick={() => {
+              if (roomId.trim()) {
+                router.push(`/room/${roomId}`)
+              }
+            }}
+            style={{
+              width: "100%",
+              padding: "15px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              border: "none",
+              borderRadius: "8px",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 5px 20px rgba(102, 126, 234, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+            Join Room
+          </button>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }

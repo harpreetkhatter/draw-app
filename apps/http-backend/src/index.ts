@@ -8,6 +8,20 @@ import * as bcrypt from 'bcrypt';
 const saltRounds = 10;
 
 const app = express();
+
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
 app.use(express.json())
 
 app.post("/signup", async (req, res) => {
@@ -121,29 +135,55 @@ app.post("/room", middleware, async (req: AuthRequest, res) => {
   }
 })
 
-app.get("/chats/:roomId",async (req,res)=>{
-  const roomId=Number(req.params.roomId)
+app.get("/chats/:roomId", async (req, res) => {
+  const roomId = Number(req.params.roomId)
+  console.log(roomId)
   try {
-    const messages=await prismaClient.chat.findMany({
-    where:{
-      roomId:roomId
-    },
-    orderBy:{
-      id:"desc"
-    },
-    take:50
-    
-  })
-  res.json({
-    messages
-  })
+    const messages = await prismaClient.chat.findMany({
+      where: {
+        roomId: roomId
+      },
+      orderBy: {
+        id: "desc"
+      },
+      take: 50
+
+    })
+    res.json({
+      messages
+    })
   } catch (error) {
-    console.log(`Error while fetching chat of room ${roomId}`,error)
+    console.log(`Error while fetching chat of room ${roomId}`, error)
     res.status(401).json({
-      message:"Can't load chats"
+      message: "Can't load chats"
     })
   }
-  
+
+})
+app.get("/room/:slug", async (req, res) => {
+  const slug = req.params.slug
+  try {
+    const room = await prismaClient.room.findFirst
+      ({
+        where: {
+          slug: slug
+        }
+
+      })
+
+
+
+
+    res.json({
+      room
+    })
+  } catch (error) {
+    console.log(`Cant fond room`, error)
+    res.status(401).json({
+      message: "Can't find room"
+    })
+  }
+
 })
 app.listen(3001, () => {
   console.log("HTTP Backend is running on port 3001");
