@@ -121,6 +121,30 @@ app.post("/room", middleware, async (req: AuthRequest, res) => {
   }
 })
 
+app.get("/chats/:roomId",async (req,res)=>{
+  const roomId=Number(req.params.roomId)
+  try {
+    const messages=await prismaClient.chat.findMany({
+    where:{
+      roomId:roomId
+    },
+    orderBy:{
+      id:"desc"
+    },
+    take:50
+    
+  })
+  res.json({
+    messages
+  })
+  } catch (error) {
+    console.log(`Error while fetching chat of room ${roomId}`,error)
+    res.status(401).json({
+      message:"Can't load chats"
+    })
+  }
+  
+})
 app.listen(3001, () => {
   console.log("HTTP Backend is running on port 3001");
 })
